@@ -86,16 +86,9 @@ def main():
         print(f"--- Scope #{idx}: {scope.raw_line} ---")
         print(f"  > Hành động áp dụng: {list(scope.actions)}")
         
-        posts = []
-        if scope.post_id is not None:
-            print(f"  > Đang lấy trực tiếp Post #{scope.post_id}...")
-            single_post = client.get_post(scope.post_id)
-            if single_post:
-                posts.append(single_post)
-        else:
-            danbooru_query = scope.build_danbooru_query()
-            print(f"  > Đang truy vấn Danbooru với query: '{danbooru_query}'...")
-            posts = client.get_posts(tags=danbooru_query, limit=50)
+        danbooru_query = scope.build_danbooru_query()
+        print(f"  > Đang truy vấn Danbooru với query: '{danbooru_query}'...")
+        posts = client.get_posts(tags=danbooru_query, limit=50)
 
         print(f"  > Nhận về {len(posts)} bài viết.")
 

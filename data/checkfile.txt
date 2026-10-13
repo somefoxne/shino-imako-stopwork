@@ -1,33 +1,40 @@
 # ==============================================================================
 # DANBOORU BOT CHECKFILE
 # ==============================================================================
-# Cú pháp phạm vi quét bài viết:
-#   pool:<số>          : Quét các post thuộc pool có ID cụ thể
-#   pool:all           : Quét các post thuộc bất kỳ pool nào (has:pools)
-#   post:<số>          : Quét post cụ thể theo ID
-#   ALL                : Quét tất cả post mới
-#   user:<tên>         : Quét post do user uploader đăng
-#   tag:<tên>          : Quét post có chứa tag cụ thể
+# Bạn có thể sử dụng TRỰC TIẾP mọi cú pháp tag tìm kiếm của Danbooru Cheatsheet:
+# (Tham khảo: https://danbooru.donmai.us/wiki_pages/help:cheatsheet)
 #
-# Hành động áp dụng (actions):
-#   action:all         : Áp dụng tất cả các hệ thống luật (2tag, 3tag, ...)
+# Ví dụ các tag Danbooru:
+#   id:<số>            : Quét post cụ thể (vd: id:8000000)
+#   pool:<số>          : Quét post trong pool (vd: pool:12345)
+#   pool:any           : Quét tất cả post thuộc bất kỳ pool nào
+#   has:pools          : Tương tự pool:any
+#   user:<tên>         : Quét post do user uploader tải lên (vd: user:artist_name)
+#   tag_name           : Quét post có chứa tag này (vd: hatsune_miku)
+#   rating:s/g/q/e     : Quét theo rating (vd: rating:g)
+#   ALL                : Quét bài viết mới tổng thể
+#
+# Dấu trừ (-) để loại trừ trực tiếp theo chuẩn Danbooru:
+#   -user:<tên>        : Loại trừ uploader (vd: -user:spammer)
+#   -tag_name          : Loại trừ bài viết có tag này (vd: -comic)
+#   -pool:<số>         : Loại trừ bài viết trong pool đó
+#
+# Chỉ định hành động của Bot (bắt đầu bằng action:):
+#   action:all         : Áp dụng tất cả hệ thống luật (mặc định)
 #   action:2tag        : Chỉ áp dụng hệ thống 2 tag
 #   action:3tag        : Chỉ áp dụng hệ thống 3 tag
 #
-# Tiêu chí loại trừ (bắt đầu bằng dấu -):
-#   -user:<tên>        : Loại trừ uploader
-#   -tag:<tên>         : Loại trừ post có tag này
-#   -pool:<số>         : Loại trừ pool
-#
-# Ví dụ thực tế:
-# ALL -user:spammer_name action:all
-# user:artist_name tag:hatsune_miku action:2tag
-# pool:all action:3tag
-# post:1234567 action:all
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# VÍ DỤ CÁC DÒNG QUY TẮC:
+# ------------------------------------------------------------------------------
+# Quét 1 post cụ thể:
+id:8000000 action:all
 
-# Quét thử một post cụ thể (thay ID post bạn muốn test)
-post:8000000 action:all
+# Quét post của user có tag miku, chạy hệ thống 2 tag:
+# user:artist_name hatsune_miku action:2tag
 
-# Ví dụ quét theo tag với action chỉ định
-# tag:hatsune_miku action:2tag
+# Quét tất cả post trong pool, loại trừ uploader spammer:
+# pool:any -user:spammer action:all
+
+# Quét theo tag touhou:
+# touhou action:3tag

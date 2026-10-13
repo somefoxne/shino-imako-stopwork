@@ -97,32 +97,33 @@ Cú pháp:
 ---
 
 ### 3. Cấu hình phạm vi quét (`data/checkfile.txt`)
-File này quyết định bot sẽ quét các bài viết nào và áp dụng hệ thống nào.
+File này quyết định bot sẽ quét các bài viết nào và áp dụng hệ thống nào. **Hỗ trợ trực tiếp mọi cú pháp tag từ [Danbooru Cheatsheet](https://danbooru.donmai.us/wiki_pages/help:cheatsheet)**!
 
-| Token | Ý nghĩa |
+| Cú pháp tag Danbooru | Ý nghĩa |
 | :--- | :--- |
-| `post:<id>` | Quét trực tiếp bài viết có ID cụ thể |
+| `id:<số>` | Quét trực tiếp bài viết có ID cụ thể (ví dụ: `id:8000000`) |
 | `pool:<id>` | Quét các bài viết trong pool có ID cụ thể |
-| `pool:all` | Quét tất cả bài viết thuộc bất kỳ pool nào (`has:pools`) |
-| `tag:<tên>` | Quét các bài viết có tag này |
+| `pool:any` hoặc `has:pools` | Quét tất cả bài viết thuộc bất kỳ pool nào |
 | `user:<tên>` | Quét các bài viết do user này upload |
+| `<tag_name>` | Quét bài viết có chứa tag này (ví dụ: `hatsune_miku`, `touhou`) |
+| `rating:g/s/q/e` | Quét bài viết theo rating kiểm duyệt |
 | `ALL` | Quét toàn bộ bài viết mới |
-| `action:<hệ_thống>` | Chỉ áp dụng hệ thống đó (`action:2tag`, `action:3tag`, hoặc `action:all`) |
-| Dấu `-` | Loại trừ (ví dụ `-user:tên`, `-tag:tên`, `-pool:id`) |
+| `-<tag_name>` / `-user:<tên>` | Dấu `-` loại trừ bài viết theo chuẩn Danbooru |
+| `action:<hệ_thống>` | Chỉ định bot chạy hệ thống nào (`action:2tag`, `action:3tag`, hoặc `action:all`) |
 
-**Ví dụ dòng lệnh trong `checkfile.txt`**:
+**Ví dụ dòng cấu hình trong `checkfile.txt`**:
 ```txt
-# Quét tất cả mọi người trừ uploader spammer, chạy tất cả hệ thống
+# Quét bài viết mới, loại trừ uploader spammer, chạy tất cả hệ thống
 ALL -user:spammer action:all
 
 # Quét post của user artist có tag miku, chỉ chạy hệ thống 2 tag
-user:artist tag:hatsune_miku action:2tag
+user:artist hatsune_miku action:2tag
 
 # Quét tất cả các bài thuộc pool, chỉ áp dụng hệ thống 3 tag
-pool:all action:3tag
+pool:any action:3tag
 
-# Quét kiểm tra 1 post cụ thể
-post:8000000 action:all
+# Quét kiểm tra 1 post cụ thể theo ID
+id:8000000 action:all
 ```
 
 ---
