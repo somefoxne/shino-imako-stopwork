@@ -14,6 +14,7 @@ class CheckScope:
         self.raw_line = raw_line
         self.actions: Set[str] = {"all"}  # Mặc định là all
         self.notis: Set[str] = set()      # Danh sách các directive Noti: (discord, ask...)
+        self.readd_policy: Optional[str] = None # Chính sách readd (never, 5, after_edits...)
         self.danbooru_tags: List[str] = []
         self.is_all: bool = False
 
@@ -40,6 +41,11 @@ class CheckScope:
                 noti_val = token[len("noti:"):].lower().strip()
                 if noti_val:
                     self.notis.add(noti_val)
+                continue
+
+            # Chỉ thị readd: (readd:never, readd:5, ...)
+            if token.lower().startswith("readd:"):
+                self.readd_policy = token[len("readd:"):].lower().strip()
                 continue
 
             # Cờ ALL (quét tổng thể bài viết)

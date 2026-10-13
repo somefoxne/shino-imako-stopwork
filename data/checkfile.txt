@@ -24,18 +24,24 @@
 #   action:2tag        : Chỉ áp dụng hệ thống 2 tag
 #   action:3tag        : Chỉ áp dụng hệ thống 3 tag
 #
-# Chỉ thị thông báo & Duyệt bài (Noti:):
-#   Noti:discord       : Gửi thông báo log các post đã cập nhật vào Discord
-#   Noti:ask           : Gửi embed kèm nút bấm vào Discord (Approve / Reject) để hỏi ý kiến trước khi thêm. Nếu được đồng ý thì thêm, nếu từ chối hoặc hết giờ thì bỏ qua.
+# Chỉ thị Thông báo & Hỏi duyệt (Noti:):
+#   Noti:discord       : CHỈ gửi log thông báo kết quả cập nhật vào Discord (không hỏi)
+#   Noti:ask           : CHỈ gửi câu hỏi duyệt bằng nút bấm (Đồng ý / Bỏ qua). Nếu được đồng ý mới thêm.
+#   (Kết hợp cả 2: Hỏi duyệt trước, nếu đồng ý thì thêm và gửi log thông báo)
+#
+# Chỉ thị Kiểm soát sửa lại khi tag bị người khác xóa (readd:):
+#   readd:never        : Nếu tag từng được bot thêm mà bị người khác xóa -> Không bao giờ add lại
+#   readd:5            : Nếu tag bị xóa -> Chỉ add lại khi đã có ít nhất 5 lượt chỉnh sửa sau đó
+#   (Mặc định lấy theo RE_ADD_POLICY trong file .env nếu không ghi)
 #
 # ------------------------------------------------------------------------------
 # VÍ DỤ CÁC DÒNG CẤU HÌNH:
 # ------------------------------------------------------------------------------
-# Quét tất cả các bài trong pool bất kỳ, loại trừ spammer, hỏi duyệt qua Discord trước khi thêm:
-pool:any -user:spammer action:all Noti:ask Noti:discord
+# Quét tất cả post trong pool, trừ spammer, hỏi duyệt qua Discord và cho phép add lại sau 5 lượt sửa:
+pool:any -user:spammer action:all Noti:ask Noti:discord readd:5
 
-# Quét 1 post cụ thể theo ID:
+# Quét post của artist có tag miku, chạy hệ thống 2 tag, chỉ gửi log thông báo, không add lại nếu bị xóa:
+# user:artist_name hatsune_miku action:2tag Noti:discord readd:never
+
+# Quét kiểm tra 1 post cụ thể theo ID:
 # id:8000000 action:all
-
-# Quét post của user artist_name có tag miku, chỉ chạy hệ thống 2 tag và thông báo discord:
-# user:artist_name hatsune_miku action:2tag Noti:discord

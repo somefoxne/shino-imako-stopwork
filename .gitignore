@@ -1,6 +1,11 @@
 # Môi trường và thông tin nhạy cảm
 .env
 
+# Database lịch sử chỉnh sửa cục bộ
+*.db
+*.sqlite
+*.sqlite3
+
 # Python cache
 __pycache__/
 *.py[cod]

@@ -13,10 +13,12 @@ from danbooru_api import DanbooruClient
 from systems import get_all_systems
 from checkfile_parser import parse_checkfile
 from discord_notifier import DiscordNotifier
+from history_manager import HistoryManager
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 CHECKFILE_PATH = os.path.join(DATA_DIR, "checkfile.txt")
+HISTORY_DB_PATH = os.path.join(DATA_DIR, "history.db")
 
 async def main():
     # 1. Nạp biến môi trường từ .env
@@ -47,18 +49,26 @@ async def main():
     except ValueError:
         ask_timeout = 120
 
+    # Cấu hình kiểm soát sửa lại (Anti edit-war / Re-add policy)
+    env_readd_policy = os.getenv("RE_ADD_POLICY", "never").strip().lower()
+    try:
+        min_edits_before_readd = int(os.getenv("MIN_EDITS_BEFORE_READD", "5"))
+    except ValueError:
+        min_edits_before_readd = 5
+
     print("=" * 65)
     print(" DANBOORU TAG AUTO-CHECKER BOT")
     print("=" * 65)
-    print(f"[*] API Base URL     : {base_url}")
-    print(f"[*] Tài khoản        : {username if username else '(Chưa cấu hình, chỉ đọc)'}")
-    print(f"[*] Chế độ DRY_RUN   : {'BẬT (Chỉ mô phỏng, KHÔNG ghi lên Danbooru)' if dry_run else 'TẮT (SẼ CẬP NHẬT TRỰC TIẾP LÊN DANBOORU!)'}")
-    print(f"[*] Độ trễ request   : {request_delay}s")
-    print(f"[*] Edit Reason      : {edit_reason}")
-    print(f"[*] Discord Channel  : {discord_channel_id if discord_channel_id else '(Chưa cấu hình)'}")
+    print(f"[*] API Base URL       : {base_url}")
+    print(f"[*] Tài khoản          : {username if username else '(Chưa cấu hình, chỉ đọc)'}")
+    print(f"[*] Chế độ DRY_RUN     : {'BẬT (Chỉ mô phỏng, KHÔNG ghi lên Danbooru)' if dry_run else 'TẮT (SẼ CẬP NHẬT TRỰC TIẾP LÊN DANBOORU!)'}")
+    print(f"[*] Độ trễ request     : {request_delay}s")
+    print(f"[*] Edit Reason        : {edit_reason}")
+    print(f"[*] Chính sách re-add  : {env_readd_policy} (tối thiểu {min_edits_before_readd} lần sửa)")
+    print(f"[*] Discord Channel    : {discord_channel_id if discord_channel_id else '(Chưa cấu hình)'}")
     print("=" * 65)
 
-    # 2. Khởi tạo Danbooru API client & Discord Notifier
+    # 2. Khởi tạo Danbooru API client, History Manager & Discord Notifier
     client = DanbooruClient(
         base_url=base_url,
         username=username,
@@ -67,6 +77,8 @@ async def main():
         dry_run=dry_run,
         edit_reason=edit_reason
     )
+
+    history_mgr = HistoryManager(HISTORY_DB_PATH)
 
     notifier = DiscordNotifier(
         bot_token=discord_token,
@@ -112,7 +124,9 @@ async def main():
             print(f"--- Scope #{idx}: {scope.raw_line} ---")
             print(f"  > Hành động áp dụng : {list(scope.actions)}")
             print(f"  > Tùy chọn thông báo: {list(scope.notis) if scope.notis else 'Mặc định'}")
-            
+            scope_policy = scope.readd_policy or env_readd_policy
+            print(f"  > Chính sách readd  : {scope_policy}")
+
             danbooru_query = scope.build_danbooru_query()
             print(f"  > Đang truy vấn Danbooru với query: '{danbooru_query}'...")
             posts = client.get_posts(tags=danbooru_query, limit=50)
@@ -130,41 +144,70 @@ async def main():
                 if not scope.matches_post(post):
                     continue
 
-                tags_to_add = set()
+                candidate_tags = set()
 
                 # Chạy qua các hệ thống được phép trong scope này
                 for sys_name, sys_instance in systems.items():
                     if scope.should_run_system(sys_name):
                         additions = sys_instance.evaluate(post_tags)
                         if additions:
-                            tags_to_add.update(additions)
+                            candidate_tags.update(additions)
 
-                # Nếu có tag mới cần bổ sung
-                if tags_to_add:
-                    should_proceed = True
+                if not candidate_tags:
+                    continue
 
-                    # Nếu có cơ chế Noti:ask -> Hỏi duyệt trước khi thêm
-                    if scope.should_ask():
-                        should_proceed = await notifier.ask_approval(post, tags_to_add, dry_run=dry_run)
+                # 6. Kiểm tra chính sách Re-add / Lịch sử chỉnh sửa để chống chiến tranh tag
+                current_version = post.get("version")
+                if current_version is None:
+                    current_version = client.get_post_latest_version(post_id)
 
-                    if should_proceed:
-                        is_success = client.update_post_tags(
-                            post_id=post_id,
-                            old_tag_string=old_tag_string,
-                            tags_to_add=tags_to_add
-                        )
-                        if is_success:
-                            total_updated += 1
-                            # Nếu có cơ chế Noti:discord -> Gửi thông báo hoàn tất
-                            if scope.should_notify_discord():
-                                await notifier.send_notification(
-                                    post=post,
-                                    tags_to_add=tags_to_add,
-                                    success=True,
-                                    dry_run=dry_run
-                                )
+                tags_to_add = set()
+                for tag in candidate_tags:
+                    allowed, reason = history_mgr.check_tag_permission(
+                        post_id=post_id,
+                        tag=tag,
+                        current_version=current_version,
+                        policy=scope_policy,
+                        min_edits=min_edits_before_readd
+                    )
+                    if allowed:
+                        tags_to_add.add(tag)
                     else:
-                        print(f"  [SKIPPED] Post #{post_id} -> Đã bỏ qua theo phản hồi Noti:ask")
+                        print(f"  [CHẶN RE-ADD] Post #{post_id} -> {reason}")
+
+                # Nếu sau khi lọc qua lịch sử không còn tag nào được phép thêm
+                if not tags_to_add:
+                    continue
+
+                # 7. Xử lý Noti:ask (Hỏi duyệt)
+                should_proceed = True
+                if scope.should_ask():
+                    should_proceed = await notifier.ask_approval(post, tags_to_add, dry_run=dry_run)
+
+                if not should_proceed:
+                    print(f"  [SKIPPED] Post #{post_id} -> Đã bỏ qua theo phản hồi Noti:ask")
+                    continue
+
+                # 8. Thực hiện cập nhật tag
+                is_success = client.update_post_tags(
+                    post_id=post_id,
+                    old_tag_string=old_tag_string,
+                    tags_to_add=tags_to_add
+                )
+
+                if is_success:
+                    total_updated += 1
+                    # Lưu lại lịch sử vào database
+                    history_mgr.record_edits(post_id, tags_to_add, current_version=current_version + 1)
+
+                    # 9. Xử lý Noti:discord (Chỉ gửi log thông báo nếu có Noti:discord)
+                    if scope.should_notify_discord():
+                        await notifier.send_notification(
+                            post=post,
+                            tags_to_add=tags_to_add,
+                            success=True,
+                            dry_run=dry_run
+                        )
 
         print("\n" + "=" * 65)
         print(" KẾT QUẢ TỔNG KẾT")

@@ -97,7 +97,7 @@ Cú pháp:
 ---
 
 ### 3. Cấu hình phạm vi quét & Thông báo (`data/checkfile.txt`)
-File này quyết định bot sẽ quét các bài viết nào, áp dụng hệ thống nào, và có cần hỏi duyệt hay gửi thông báo Discord không. **Hỗ trợ trực tiếp mọi cú pháp tag từ [Danbooru Cheatsheet](https://danbooru.donmai.us/wiki_pages/help:cheatsheet)**!
+File này quyết định bot sẽ quét các bài viết nào, áp dụng hệ thống nào, có cần hỏi duyệt hay gửi log Discord không, và giới hạn sửa lại khi bị xóa tag. **Hỗ trợ trực tiếp mọi cú pháp tag từ [Danbooru Cheatsheet](https://danbooru.donmai.us/wiki_pages/help:cheatsheet)**!
 
 | Cú pháp | Ý nghĩa |
 | :--- | :--- |
@@ -110,16 +110,18 @@ File này quyết định bot sẽ quét các bài viết nào, áp dụng hệ 
 | `ALL` | Quét toàn bộ bài viết mới |
 | `-<tag_name>` / `-user:<tên>` | Dấu `-` loại trừ bài viết theo chuẩn Danbooru |
 | `action:<hệ_thống>` | Chỉ định bot chạy hệ thống nào (`action:2tag`, `action:3tag`, hoặc `action:all`) |
-| `Noti:discord` | Gửi tin nhắn thông báo vào Discord sau khi bài viết được cập nhật tag |
-| `Noti:ask` | Gửi embed kèm nút bấm **[✅ Đồng ý]** / **[❌ Bỏ qua]** vào Discord để hỏi ý kiến trước khi cập nhật. Nếu được đồng ý mới thêm tag, nếu từ chối hoặc hết giờ thì bỏ qua. |
+| `Noti:discord` | **CHỈ GỬI LOG**: Gửi thông báo kết quả cập nhật vào Discord (không hỏi duyệt). |
+| `Noti:ask` | **CHỈ HỎI DUYỆT**: Gửi embed có nút bấm **[✅ Đồng ý]** / **[❌ Bỏ qua]** vào Discord. Chỉ khi được bấm Đồng ý bot mới thêm tag. |
+| `readd:never` | Nếu tag từng được bot thêm mà bị người khác xóa $\rightarrow$ **Không bao giờ add lại**. |
+| `readd:<N>` | Nếu tag bị xóa $\rightarrow$ Chỉ add lại nếu đã có ít nhất `<N>` lượt chỉnh sửa của người khác sau đó (ví dụ: `readd:5`). |
 
 **Ví dụ dòng cấu hình trong `checkfile.txt`**:
 ```txt
-# Quét tất cả các bài thuộc pool bất kỳ, loại trừ spammer sau đó hỏi ở trong discord nếu được đồng ý thì thêm:
-pool:any -user:spammer action:all Noti:ask Noti:discord
+# Quét tất cả các bài thuộc pool, loại trừ spammer, hỏi duyệt qua Discord trước khi thêm và cho phép add lại sau 5 lượt sửa:
+pool:any -user:spammer action:all Noti:ask Noti:discord readd:5
 
-# Quét post của artist có tag miku, chạy hệ thống 2 tag và thông báo kết quả vào discord:
-user:artist hatsune_miku action:2tag Noti:discord
+# Quét post của artist có tag miku, chạy hệ thống 2 tag, chỉ gửi log discord, không add lại nếu bị xóa:
+user:artist hatsune_miku action:2tag Noti:discord readd:never
 
 # Quét kiểm tra 1 post cụ thể theo ID:
 id:8000000 action:all

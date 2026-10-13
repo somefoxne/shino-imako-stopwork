@@ -86,6 +86,25 @@ class DanbooruClient:
             print(f"[!] Lỗi kết nối khi lấy bài viết #{post_id}: {e}")
             return None
 
+    def get_post_latest_version(self, post_id: int) -> int:
+        """
+        Lấy số thứ tự phiên bản mới nhất (version number) của bài viết từ Danbooru.
+        """
+        url = f"{self.base_url}/post_versions.json"
+        params = {
+            "search[post_id]": post_id,
+            "limit": 1
+        }
+        try:
+            res = self.session.get(url, params=params, timeout=15)
+            if res.status_code == 200:
+                data = res.json()
+                if isinstance(data, list) and len(data) > 0:
+                    return data[0].get("version", 1)
+        except Exception:
+            pass
+        return 1
+
     def update_post_tags(
         self,
         post_id: int,
