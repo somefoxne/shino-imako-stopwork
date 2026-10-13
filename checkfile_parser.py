@@ -4,18 +4,16 @@ from typing import List, Set, Dict, Any
 class CheckScope:
     """
     Đại diện cho một phạm vi quét bài viết trong checkfile.txt.
-    Tất cả các token (ngoại trừ action:...) đều tuân theo chuẩn cú pháp tag của Danbooru cheatsheet:
-    - id:123456
-    - pool:123 hoặc pool:any / has:pools
-    - user:artist_name
-    - rating:g / rating:s / rating:q / rating:e
-    - tag_name hoặc -tag_name (loại trừ)
-    - ALL (quét bài mới tổng thể)
-    - action:2tag / action:3tag / action:all (chỉ định hệ thống bot áp dụng)
+    - Hỗ trợ toàn bộ cú pháp Danbooru Cheatsheet (id:..., pool:..., user:..., tag, -tag...)
+    - Chỉ thị hành động bot: action:2tag, action:3tag, action:all
+    - Chỉ thị thông báo/duyệt:
+        + Noti:discord  -> Gửi thông báo kết quả cập nhật vào Discord
+        + Noti:ask      -> Hỏi người dùng trên Discord (bằng nút bấm Approve/Reject) trước khi thêm
     """
     def __init__(self, raw_line: str):
         self.raw_line = raw_line
         self.actions: Set[str] = {"all"}  # Mặc định là all
+        self.notis: Set[str] = set()      # Danh sách các directive Noti: (discord, ask...)
         self.danbooru_tags: List[str] = []
         self.is_all: bool = False
 
@@ -28,13 +26,20 @@ class CheckScope:
             if not token:
                 continue
 
-            # Chỉ định action của bot (ví dụ: action:2tag, action:3tag, action:all)
+            # Chỉ thị action của bot (action:2tag, action:3tag, action:all)
             if token.lower().startswith("action:"):
                 act = token[len("action:"):].lower().strip()
                 if act == "all":
                     self.actions = {"all"}
                 else:
                     self.actions = {act}
+                continue
+
+            # Chỉ thị Noti: (Noti:discord, Noti:ask, ...)
+            if token.lower().startswith("noti:"):
+                noti_val = token[len("noti:"):].lower().strip()
+                if noti_val:
+                    self.notis.add(noti_val)
                 continue
 
             # Cờ ALL (quét tổng thể bài viết)
@@ -77,8 +82,20 @@ class CheckScope:
         """Kiểm tra action có áp dụng cho system này không."""
         return "all" in self.actions or system_name.lower() in self.actions
 
+    def has_noti(self, noti_name: str) -> bool:
+        """Kiểm tra có bật loại thông báo cụ thể nào không."""
+        return noti_name.lower() in self.notis
+
+    def should_ask(self) -> bool:
+        """Kiểm tra xem có yêu cầu hỏi duyệt trước khi thêm không (Noti:ask)."""
+        return "ask" in self.notis
+
+    def should_notify_discord(self) -> bool:
+        """Kiểm tra xem có yêu cầu thông báo Discord không (Noti:discord)."""
+        return "discord" in self.notis
+
     def __repr__(self):
-        return f"<CheckScope line='{self.raw_line}' query='{self.build_danbooru_query()}' actions={self.actions}>"
+        return f"<CheckScope line='{self.raw_line}' query='{self.build_danbooru_query()}' actions={self.actions} notis={self.notis}>"
 
 def parse_checkfile(filepath: str) -> List[CheckScope]:
     """Đọc file checkfile.txt và trả về danh sách các CheckScope hợp lệ."""

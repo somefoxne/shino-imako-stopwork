@@ -1,10 +1,10 @@
 # ==============================================================================
 # DANBOORU BOT CHECKFILE
 # ==============================================================================
-# Bạn có thể sử dụng TRỰC TIẾP mọi cú pháp tag tìm kiếm của Danbooru Cheatsheet:
-# (Tham khảo: https://danbooru.donmai.us/wiki_pages/help:cheatsheet)
+# Hỗ trợ toàn bộ cú pháp tag tìm kiếm theo Danbooru Cheatsheet:
+# (https://danbooru.donmai.us/wiki_pages/help:cheatsheet)
 #
-# Ví dụ các tag Danbooru:
+# Ví dụ tag Danbooru:
 #   id:<số>            : Quét post cụ thể (vd: id:8000000)
 #   pool:<số>          : Quét post trong pool (vd: pool:12345)
 #   pool:any           : Quét tất cả post thuộc bất kỳ pool nào
@@ -19,22 +19,23 @@
 #   -tag_name          : Loại trừ bài viết có tag này (vd: -comic)
 #   -pool:<số>         : Loại trừ bài viết trong pool đó
 #
-# Chỉ định hành động của Bot (bắt đầu bằng action:):
+# Chỉ thị hành động của Bot:
 #   action:all         : Áp dụng tất cả hệ thống luật (mặc định)
 #   action:2tag        : Chỉ áp dụng hệ thống 2 tag
 #   action:3tag        : Chỉ áp dụng hệ thống 3 tag
 #
+# Chỉ thị thông báo & Duyệt bài (Noti:):
+#   Noti:discord       : Gửi thông báo log các post đã cập nhật vào Discord
+#   Noti:ask           : Gửi embed kèm nút bấm vào Discord (Approve / Reject) để hỏi ý kiến trước khi thêm. Nếu được đồng ý thì thêm, nếu từ chối hoặc hết giờ thì bỏ qua.
+#
 # ------------------------------------------------------------------------------
-# VÍ DỤ CÁC DÒNG QUY TẮC:
+# VÍ DỤ CÁC DÒNG CẤU HÌNH:
 # ------------------------------------------------------------------------------
-# Quét 1 post cụ thể:
-id:8000000 action:all
+# Quét tất cả các bài trong pool bất kỳ, loại trừ spammer, hỏi duyệt qua Discord trước khi thêm:
+pool:any -user:spammer action:all Noti:ask Noti:discord
 
-# Quét post của user có tag miku, chạy hệ thống 2 tag:
-# user:artist_name hatsune_miku action:2tag
+# Quét 1 post cụ thể theo ID:
+# id:8000000 action:all
 
-# Quét tất cả post trong pool, loại trừ uploader spammer:
-# pool:any -user:spammer action:all
-
-# Quét theo tag touhou:
-# touhou action:3tag
+# Quét post của user artist_name có tag miku, chỉ chạy hệ thống 2 tag và thông báo discord:
+# user:artist_name hatsune_miku action:2tag Noti:discord
