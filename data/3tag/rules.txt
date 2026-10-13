@@ -1,0 +1,22 @@
+# ==============================================================================
+# HỆ THỐNG LUẬT 3 TAG (Three-Tag System)
+# ==============================================================================
+# Cú pháp:
+#   ? A B C -D -E
+#
+# Ý nghĩa:
+#   - Bộ 3 tag tương hỗ: A, B, C.
+#   - Nếu post có 2 trong 3 tag và thiếu 1 tag -> tự động bổ sung tag còn thiếu:
+#       + Có A và B nhưng thiếu C -> thêm C
+#       + Có A và C nhưng thiếu B -> thêm B
+#       + Có B và C nhưng thiếu A -> thêm A
+#   - Nếu post đã có đủ cả 3 tag -> không cần thêm gì.
+#   - Nếu post có chứa bất kỳ tag loại trừ nào (-D, -E...) -> bỏ qua, không thêm.
+# ==============================================================================
+
+# Ví dụ mẫu:
+# Tam giác liên hệ giữa tóc hai bên, ruy băng tóc và kiểu tóc twintails
+? twintails hair_ribbon twin_ribbons -single_ribbon
+
+# Bộ 3 tương hỗ về trang phục ma cà rồng
+? vampire fangs pointy_ears -elf

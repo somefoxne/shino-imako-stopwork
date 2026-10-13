@@ -1,0 +1,16 @@
+# Môi trường và thông tin nhạy cảm
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Môi trường ảo
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/

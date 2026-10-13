@@ -1,0 +1,33 @@
+# ==============================================================================
+# DANBOORU BOT CHECKFILE
+# ==============================================================================
+# Cú pháp phạm vi quét bài viết:
+#   pool:<số>          : Quét các post thuộc pool có ID cụ thể
+#   pool:all           : Quét các post thuộc bất kỳ pool nào (has:pools)
+#   post:<số>          : Quét post cụ thể theo ID
+#   ALL                : Quét tất cả post mới
+#   user:<tên>         : Quét post do user uploader đăng
+#   tag:<tên>          : Quét post có chứa tag cụ thể
+#
+# Hành động áp dụng (actions):
+#   action:all         : Áp dụng tất cả các hệ thống luật (2tag, 3tag, ...)
+#   action:2tag        : Chỉ áp dụng hệ thống 2 tag
+#   action:3tag        : Chỉ áp dụng hệ thống 3 tag
+#
+# Tiêu chí loại trừ (bắt đầu bằng dấu -):
+#   -user:<tên>        : Loại trừ uploader
+#   -tag:<tên>         : Loại trừ post có tag này
+#   -pool:<số>         : Loại trừ pool
+#
+# Ví dụ thực tế:
+# ALL -user:spammer_name action:all
+# user:artist_name tag:hatsune_miku action:2tag
+# pool:all action:3tag
+# post:1234567 action:all
+# ==============================================================================
+
+# Quét thử một post cụ thể (thay ID post bạn muốn test)
+post:8000000 action:all
+
+# Ví dụ quét theo tag với action chỉ định
+# tag:hatsune_miku action:2tag
