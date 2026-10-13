@@ -26,9 +26,19 @@ async def main():
     if os.path.exists(env_path):
         load_dotenv(env_path)
 
-    base_url = os.getenv("DANBOORU_URL", "https://danbooru.donmai.us")
-    username = os.getenv("DANBOORU_USERNAME", "")
-    api_key = os.getenv("DANBOORU_API_KEY", "")
+    # Chế độ TEST_MODE (Testbooru)
+    test_mode_str = os.getenv("TEST_MODE", "False").strip().lower()
+    test_mode = test_mode_str in ("true", "1", "yes")
+
+    if test_mode:
+        base_url = os.getenv("TESTBOORU_URL", "https://testbooru.donmai.us").rstrip("/")
+        username = os.getenv("TESTBOORU_USERNAME", "") or os.getenv("DANBOORU_USERNAME", "")
+        api_key = os.getenv("TESTBOORU_API_KEY", "") or os.getenv("DANBOORU_API_KEY", "")
+    else:
+        base_url = os.getenv("DANBOORU_URL", "https://danbooru.donmai.us").rstrip("/")
+        username = os.getenv("DANBOORU_USERNAME", "")
+        api_key = os.getenv("DANBOORU_API_KEY", "")
+
     dry_run_str = os.getenv("DRY_RUN", "True").strip().lower()
     dry_run = dry_run_str in ("true", "1", "yes")
     
@@ -59,6 +69,8 @@ async def main():
     print("=" * 65)
     print(" DANBOORU TAG AUTO-CHECKER BOT")
     print("=" * 65)
+    if test_mode:
+        print("[!] >> CHẾ ĐỘ TESTBOORU ĐANG BẬT (https://testbooru.donmai.us) <<")
     print(f"[*] API Base URL       : {base_url}")
     print(f"[*] Tài khoản          : {username if username else '(Chưa cấu hình, chỉ đọc)'}")
     print(f"[*] Chế độ DRY_RUN     : {'BẬT (Chỉ mô phỏng, KHÔNG ghi lên Danbooru)' if dry_run else 'TẮT (SẼ CẬP NHẬT TRỰC TIẾP LÊN DANBOORU!)'}")
@@ -84,7 +96,8 @@ async def main():
         bot_token=discord_token,
         channel_id=discord_channel_id,
         webhook_url=discord_webhook,
-        timeout=ask_timeout
+        timeout=ask_timeout,
+        base_url=base_url
     )
 
     # Khởi động kết nối Discord bot nếu có
@@ -100,7 +113,8 @@ async def main():
             sys_data_dir = os.path.join(DATA_DIR, sys_name)
             if os.path.exists(sys_data_dir):
                 sys_instance.load_rules(sys_data_dir)
-                print(f"  + [{sys_name.upper()}] Đã nạp {sys_instance.get_rule_count()} quy tắc từ {sys_name}/")
+                files_str = ", ".join(sys_instance.loaded_files) if sys_instance.loaded_files else "Không có file nào"
+                print(f"  + [{sys_name.upper()}] Đã nạp {sys_instance.get_rule_count()} quy tắc từ {len(sys_instance.loaded_files)} file: [{files_str}]")
             else:
                 print(f"  + [{sys_name.upper()}] Thư mục {sys_data_dir} chưa tồn tại!")
 

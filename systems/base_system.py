@@ -8,10 +8,11 @@ class BaseTagSystem(ABC):
     """
     def __init__(self, name: str):
         self.name = name
+        self.loaded_files: List[str] = []
 
     @abstractmethod
     def load_rules(self, data_dir_or_file: str) -> None:
-        """Đọc và nạp các luật từ file hoặc thư mục dữ liệu."""
+        """Đọc và nạp tất cả các file .txt từ thư mục hoặc file cụ thể."""
         pass
 
     @abstractmethod
@@ -24,5 +25,5 @@ class BaseTagSystem(ABC):
 
     @abstractmethod
     def get_rule_count(self) -> int:
-        """Trả về số lượng quy tắc hiện đang nạp."""
+        """Trả về tổng số lượng quy tắc hiện đang nạp."""
         pass

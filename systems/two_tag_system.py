@@ -27,7 +27,7 @@ class TwoTagRule:
 class TwoTagSystem(BaseTagSystem):
     """
     Hệ thống 2 tag (A -> B -D):
-    - Đọc các quy tắc dạng: `A -> B` hoặc `A -> B -D -E`
+    - Đọc TẤT CẢ các file .txt trong thư mục data/2tag/ (ví dụ rules.txt, custom.txt, list.txt...)
     - Logic: Nếu post có A nhưng thiếu B, và không chứa D -> thêm B.
     """
     def __init__(self):
@@ -36,16 +36,20 @@ class TwoTagSystem(BaseTagSystem):
 
     def load_rules(self, data_dir_or_file: str) -> None:
         self.rules.clear()
+        self.loaded_files.clear()
         files_to_read = []
+
         if os.path.isdir(data_dir_or_file):
-            for fname in os.listdir(data_dir_or_file):
-                if fname.endswith(".txt"):
-                    files_to_read.append(os.path.join(data_dir_or_file, fname))
+            for root, _, files in os.walk(data_dir_or_file):
+                for fname in sorted(files):
+                    if fname.lower().endswith(".txt"):
+                        files_to_read.append(os.path.join(root, fname))
         elif os.path.isfile(data_dir_or_file):
             files_to_read.append(data_dir_or_file)
 
         for filepath in files_to_read:
-            with open(filepath, "r", encoding="utf-8") as f:
+            self.loaded_files.append(os.path.basename(filepath))
+            with open(filepath, "r", encoding="utf-8-sig", errors="replace") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line or line.startswith("#"):

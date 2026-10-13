@@ -24,11 +24,10 @@ danbooru_tag_bot/
 │   └── three_tag_system.py # Hệ thống luật 3 tag (? A B C -D)
 │
 └── data/                 # THƯ MỤC DATABASE & QUY TẮC
-    ├── checkfile.txt     # Phạm vi quét post (pool, post, user, tag, action...)
-    ├── 2tag/             # Chứa các file luật cho hệ thống 2 tag
-    │   └── rules.txt     # Các dòng quy tắc: A -> B -D
-    └── 3tag/             # Chứa các file luật cho hệ thống 3 tag
-        └── rules.txt     # Các dòng quy tắc: ? A B C -D
+    ├── checkfile.txt     # Phạm vi quét post (pool, post, user, tag, action, Noti, readd...)
+    ├── history.db        # Database SQLite tự động lưu lịch sử sửa bài để chống edit-war
+    ├── 2tag/             # Chứa TẤT CẢ các file .txt của hệ thống 2 tag (rules.txt, extra.txt...)
+    └── 3tag/             # Chứa TẤT CẢ các file .txt của hệ thống 3 tag (rules.txt, chars.txt...)
 ```
 
 ---
@@ -43,19 +42,33 @@ danbooru_tag_bot/
 2. **Cấu hình file `.env`**:
    Mở file `.env` và điền thông tin tài khoản:
    ```env
+   # Tài khoản Danbooru chính thức
    DANBOORU_URL=https://danbooru.donmai.us
    DANBOORU_USERNAME=tên_user_danbooru
    DANBOORU_API_KEY=api_key_của_bạn
+
+   # Chế độ TESTBOORU: Đổi sang True để test bot an toàn trên https://testbooru.donmai.us
+   TEST_MODE=False
+   TESTBOORU_URL=https://testbooru.donmai.us
+   TESTBOORU_USERNAME=
+   TESTBOORU_API_KEY=
+
+   # An toàn: DRY_RUN=True chỉ quét mô phỏng, KHÔNG ghi đè lên server
    DRY_RUN=True
    REQUEST_DELAY=1.0
+
+   # Chính sách re-add khi tag bị người khác xóa: "never" hoặc "after_edits"
+   RE_ADD_POLICY=never
+   MIN_EDITS_BEFORE_READD=5
    ```
-   > ⚠️ **Lưu ý quan trọng**: Mặc định `DRY_RUN=True` sẽ chỉ quét và hiển thị ra màn hình các tag dự kiến thêm, **hoàn toàn không ghi đè lên Danbooru**. Khi bạn đã kiểm tra kỹ các quy tắc, đổi thành `DRY_RUN=False` để bot cập nhật thật.
 
 ---
 
 ## 📝 Hướng dẫn viết luật
 
-### 1. Hệ thống 2 Tag (`data/2tag/rules.txt`)
+> 💡 **Lưu ý quan trọng về thư mục luật**: Trong thư mục `data/2tag/` và `data/3tag/`, bạn có thể tạo **bao nhiêu file `.txt` tùy ý** (ví dụ: `rules.txt`, `general.txt`, `character.txt`, `asdashjdash.txt`...). Bot sẽ tự động quét và nạp toàn bộ các file `.txt` có trong thư mục!
+
+### 1. Hệ thống 2 Tag (`data/2tag/*.txt`)
 Cú pháp:
 ```
 A -> B -D -E

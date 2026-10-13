@@ -35,12 +35,14 @@ class DiscordNotifier:
         bot_token: str = "",
         channel_id: Optional[int] = None,
         webhook_url: str = "",
-        timeout: int = 120
+        timeout: int = 120,
+        base_url: str = "https://danbooru.donmai.us"
     ):
         self.bot_token = bot_token.strip() if bot_token else ""
         self.channel_id = channel_id
         self.webhook_url = webhook_url.strip() if webhook_url else ""
         self.timeout = timeout
+        self.base_url = base_url.rstrip("/")
 
         self.client: Optional[discord.Client] = None
         self.channel: Optional[discord.TextChannel] = None
@@ -86,7 +88,7 @@ class DiscordNotifier:
         """
         post_id = post.get("id")
         tags_str = ", ".join(sorted(list(tags_to_add)))
-        danbooru_url = f"https://danbooru.donmai.us/posts/{post_id}"
+        danbooru_url = f"{self.base_url}/posts/{post_id}"
 
         # 1. Nếu Discord Bot kết nối thành công -> Hỏi qua Discord Buttons
         if self.is_ready and self.channel:
@@ -151,7 +153,7 @@ class DiscordNotifier:
         """
         post_id = post.get("id")
         tags_str = ", ".join(sorted(list(tags_to_add)))
-        danbooru_url = f"https://danbooru.donmai.us/posts/{post_id}"
+        danbooru_url = f"{self.base_url}/posts/{post_id}"
 
         title = f"📢 [Cập nhật Tag] Danbooru #{post_id}"
         if dry_run:
