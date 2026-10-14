@@ -54,10 +54,6 @@ async def main():
     discord_channel_id_str = os.getenv("DISCORD_CHANNEL_ID", "")
     discord_channel_id = int(discord_channel_id_str) if discord_channel_id_str.isdigit() else None
     discord_webhook = os.getenv("DISCORD_WEBHOOK_URL", "")
-    try:
-        ask_timeout = int(os.getenv("ASK_TIMEOUT_SECONDS", "120"))
-    except ValueError:
-        ask_timeout = 120
 
     # Cấu hình kiểm soát sửa lại (Anti edit-war / Re-add policy)
     env_readd_policy = os.getenv("RE_ADD_POLICY", "never").strip().lower()
@@ -96,7 +92,6 @@ async def main():
         bot_token=discord_token,
         channel_id=discord_channel_id,
         webhook_url=discord_webhook,
-        timeout=ask_timeout,
         base_url=base_url
     )
 

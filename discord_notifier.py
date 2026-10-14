@@ -5,8 +5,8 @@ import requests
 import discord
 
 class ApprovalView(discord.ui.View):
-    def __init__(self, timeout: int = 120):
-        super().__init__(timeout=timeout)
+    def __init__(self):
+        super().__init__(timeout=None)
         self.approved: Optional[bool] = None
         self.responder: Optional[discord.User] = None
 
@@ -35,13 +35,11 @@ class DiscordNotifier:
         bot_token: str = "",
         channel_id: Optional[int] = None,
         webhook_url: str = "",
-        timeout: int = 120,
         base_url: str = "https://danbooru.donmai.us"
     ):
         self.bot_token = bot_token.strip() if bot_token else ""
         self.channel_id = channel_id
         self.webhook_url = webhook_url.strip() if webhook_url else ""
-        self.timeout = timeout
         self.base_url = base_url.rstrip("/")
 
         self.client: Optional[discord.Client] = None
@@ -110,12 +108,12 @@ class DiscordNotifier:
             if preview_img:
                 embed.set_thumbnail(url=preview_img)
 
-            embed.set_footer(text=f"⏱️ Hết hạn sau {self.timeout} giây nếu không có phản hồi.")
+            embed.set_footer(text="Vui lòng bấm nút để duyệt bài viết.")
 
-            view = ApprovalView(timeout=self.timeout)
+            view = ApprovalView()
             msg = await self.channel.send(embed=embed, view=view)
 
-            print(f"  [Noti:ask] Đã gửi yêu cầu duyệt Post #{post_id} vào Discord. Đang chờ phản hồi...")
+            print(f"  [Noti:ask] Đã gửi yêu cầu duyệt Post #{post_id} vào Discord. Đang chờ bạn bấm duyệt...")
             await view.wait()
 
             if view.approved is True:
@@ -124,16 +122,10 @@ class DiscordNotifier:
                 embed.set_footer(text=f"Được đồng ý bởi @{view.responder} • Tiến hành thêm tags")
                 await msg.edit(embed=embed, view=view)
                 return True
-            elif view.approved is False:
+            else:
                 embed.color = discord.Color.red()
                 embed.title = f"❌ [ĐÃ TỪ CHỐI] Danbooru #{post_id}"
                 embed.set_footer(text=f"Đã bị từ chối bởi @{view.responder} • Bỏ qua bài này")
-                await msg.edit(embed=embed, view=view)
-                return False
-            else:
-                embed.color = discord.Color.dark_grey()
-                embed.title = f"⏱️ [HẾT GIỜ DUYỆT] Danbooru #{post_id}"
-                embed.set_footer(text=f"Hết {self.timeout}s không có phản hồi • Tự động bỏ qua")
                 await msg.edit(embed=embed, view=view)
                 return False
 
