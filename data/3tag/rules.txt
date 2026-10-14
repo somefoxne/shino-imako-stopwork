@@ -22,10 +22,10 @@
 # ==============================================================================
 
 # Ví dụ dạng mũi tên:
-school_uniform sailor_collar pleated_skirt -> student <cosplay>
+# school_uniform sailor_collar pleated_skirt -> student <cosplay>
 
-# Ví dụ dạng ?A B C (Cần ?twintails: có hair_ribbon thì bù twin_ribbons; có twin_ribbons thì bù hair_ribbon)
-?twintails hair_ribbon twin_ribbons <single_ribbon>
+# Ví dụ dạng ?A B C:
+# ?twintails hair_ribbon twin_ribbons <single_ribbon>
 
 # Ví dụ dạng ?A B C D:
-?vampire fangs pointy_ears cape <elf>
+# ?vampire fangs pointy_ears cape <elf>

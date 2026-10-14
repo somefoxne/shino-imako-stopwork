@@ -53,6 +53,13 @@ class CheckScope:
                 self.is_all = True
                 continue
 
+            # Nếu có tiền tố tag: (ví dụ: tag:user:thefoxne -> user:thefoxne, hoặc tag:miku -> miku)
+            if token.lower().startswith("tag:"):
+                clean_tag = token[len("tag:"):].strip()
+                if clean_tag:
+                    self.danbooru_tags.append(clean_tag)
+                continue
+
             # Tất cả các token còn lại đều là tag Danbooru hợp lệ (id:..., pool:..., user:..., tag...)
             self.danbooru_tags.append(token)
 

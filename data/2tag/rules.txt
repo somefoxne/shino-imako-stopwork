@@ -10,11 +10,12 @@
 #   - <E>: Nếu post có tag E thì không thêm B.
 # ==============================================================================
 
-# Có bikini thì thêm swimwear, trừ khi có school_swimsuit
-?bikini swimwear <school_swimsuit>
+# Quy tắc do bạn thêm:
+ookami_mio -> hololive
 
-# Có cat_ears thì thêm animal_ears
-?cat_ears animal_ears
+# Có thể viết theo dạng mới ?A B:
+# ?ookami_mio hololive
 
-# Có sailor_collar thì thêm sailor_uniform
-?sailor_collar sailor_uniform
+# Ví dụ có tag loại trừ <...>:
+# ?bikini swimwear <school_swimsuit>
+# ?cat_ears animal_ears
