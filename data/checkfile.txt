@@ -46,4 +46,4 @@ pool:any -user:spammer action:all Noti:ask Noti:discord readd:5
 # Quét kiểm tra 1 post cụ thể theo ID:
 # id:8000000 action:all
 
-user:thefoxne action:2tag Noti:discord
+tag:user:thefoxne action:2tag Noti:discord
