@@ -1,21 +1,20 @@
 # ==============================================================================
-# HỆ THỐNG LUẬT 2 TAG (Two-Tag System)
+# HỆ THỐNG LUẬT 2 TAG (CÚ PHÁP MỚI)
 # ==============================================================================
 # Cú pháp:
-#   A -> B -D -E
+#   ?A B <E>       hoặc      A -> B <E>
 #
 # Ý nghĩa:
-#   - Nếu post có tag A nhưng thiếu tag B -> thêm tag B.
-#   - Nếu post đã có sẵn tag B -> không làm gì (kệ nó).
-#   - Nếu post có chứa bất kỳ tag loại trừ nào (-D, -E...) -> bỏ qua, không thêm B.
+#   - Có A thì thêm B.
+#   - Có B thì KHÔNG làm gì A (vì ?A là tag bắt buộc, không được tự động thêm).
+#   - <E>: Nếu post có tag E thì không thêm B.
 # ==============================================================================
 
-# Ví dụ mẫu:
-# Có bikini nhưng chưa có swimwear thì thêm swimwear (trừ khi có school_swimsuit)
-bikini -> swimwear -school_swimsuit
+# Có bikini thì thêm swimwear, trừ khi có school_swimsuit
+?bikini swimwear <school_swimsuit>
 
-# Có cat_ears nhưng chưa có animal_ears thì thêm animal_ears
-cat_ears -> animal_ears
+# Có cat_ears thì thêm animal_ears
+?cat_ears animal_ears
 
-# Có sailor_collar nhưng chưa có sailor_uniform thì thêm sailor_uniform
-sailor_collar -> sailor_uniform
+# Có sailor_collar thì thêm sailor_uniform
+?sailor_collar sailor_uniform

@@ -1,22 +1,31 @@
 # ==============================================================================
-# HỆ THỐNG LUẬT 3 TAG (Three-Tag System)
+# HỆ THỐNG LUẬT 3 TAG & N-TAG (CÚ PHÁP MỚI)
 # ==============================================================================
-# Cú pháp:
-#   ? A B C -D -E
+# 1. Dạng mũi tên (Implication):
+#    A B C -> D <E>
+#    - Có đủ A B C thì thêm D, trừ khi có tag E trong <E>
 #
-# Ý nghĩa:
-#   - Bộ 3 tag tương hỗ: A, B, C.
-#   - Nếu post có 2 trong 3 tag và thiếu 1 tag -> tự động bổ sung tag còn thiếu:
-#       + Có A và B nhưng thiếu C -> thêm C
-#       + Có A và C nhưng thiếu B -> thêm B
-#       + Có B và C nhưng thiếu A -> thêm A
-#   - Nếu post đã có đủ cả 3 tag -> không cần thêm gì.
-#   - Nếu post có chứa bất kỳ tag loại trừ nào (-D, -E...) -> bỏ qua, không thêm.
+# 2. Dạng neo bắt buộc & suy luận tương hỗ (?):
+#    ?A B C <E>
+#    - ?A là tag bắt buộc phải có (và không bao giờ được thêm).
+#    - Có A, B -> thêm C
+#    - Có A, C -> thêm B
+#    - Có B, C (thiếu A) -> không thêm gì
+#
+#    ?A B C D <E>
+#    - ?A là bắt buộc phải có.
+#    - Có 2 trong 3 {B, C, D} -> tự động bù tag thứ 3 còn thiếu.
+#    - Nếu có tag trong <E> -> hủy bỏ qua.
+#
+#    ?A ?B C D E F G <H I K>
+#    - Cần cả ?A và ?B. Thiếu 1 tag trong tập {C, D, E, F, G} -> tự động bù.
 # ==============================================================================
 
-# Ví dụ mẫu:
-# Tam giác liên hệ giữa tóc hai bên, ruy băng tóc và kiểu tóc twintails
-? twintails hair_ribbon twin_ribbons -single_ribbon
+# Ví dụ dạng mũi tên:
+school_uniform sailor_collar pleated_skirt -> student <cosplay>
 
-# Bộ 3 tương hỗ về trang phục ma cà rồng
-? vampire fangs pointy_ears -elf
+# Ví dụ dạng ?A B C (Cần ?twintails: có hair_ribbon thì bù twin_ribbons; có twin_ribbons thì bù hair_ribbon)
+?twintails hair_ribbon twin_ribbons <single_ribbon>
+
+# Ví dụ dạng ?A B C D:
+?vampire fangs pointy_ears cape <elf>

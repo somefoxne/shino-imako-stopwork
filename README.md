@@ -69,42 +69,60 @@ danbooru_tag_bot/
 > 💡 **Lưu ý quan trọng về thư mục luật**: Trong thư mục `data/2tag/` và `data/3tag/`, bạn có thể tạo **bao nhiêu file `.txt` tùy ý** (ví dụ: `rules.txt`, `general.txt`, `character.txt`, `asdashjdash.txt`...). Bot sẽ tự động quét và nạp toàn bộ các file `.txt` có trong thư mục!
 
 ### 1. Hệ thống 2 Tag (`data/2tag/*.txt`)
-Cú pháp:
+Cú pháp mới:
 ```
-A -> B -D -E
+?A B <E>       hoặc       A -> B <E>
 ```
-* **Logic**: Nếu post có tag `A` nhưng **chưa có** `B` $\rightarrow$ Thêm `B`.
-* Nếu post đã có `B` $\rightarrow$ Kệ nó (không làm gì).
-* Nếu post có chứa tag loại trừ `-D` $\rightarrow$ Bỏ qua, không thêm.
+* **Logic**:
+  * `?A`: Tag **bắt buộc** phải có (và bot không bao giờ tự ý thêm tag `A`).
+  * `B`: Tag cần thêm nếu post đã có `A` nhưng chưa có `B`.
+  * Nếu post có `B` nhưng chưa có `A` $\rightarrow$ **Không hoạt động** (không thêm `A`).
+  * `<E>`: Tag loại trừ. Nếu post dính tag trong `<...>` $\rightarrow$ Không thêm.
 
 **Ví dụ**:
 ```txt
-# Có bikini nhưng chưa có swimwear thì thêm swimwear (trừ khi có school_swimsuit)
-bikini -> swimwear -school_swimsuit
-cat_ears -> animal_ears
+# Có bikini thì thêm swimwear, trừ khi có school_swimsuit
+?bikini swimwear <school_swimsuit>
+
+# Có cat_ears thì thêm animal_ears
+?cat_ears animal_ears
 ```
 
 ---
 
-### 2. Hệ thống 3 Tag (`data/3tag/rules.txt`)
-Cú pháp:
-```
-? A B C -D -E
-```
-* **Logic tam giác tương hỗ**:
-  * Có `A` và `B` (thiếu `C`) $\rightarrow$ Thêm `C`.
-  * Có `A` và `C` (thiếu `B`) $\rightarrow$ Thêm `B`.
-  * Có `B` và `C` (thiếu `A`) $\rightarrow$ Thêm `A`.
-  * Đã có đủ cả 3 tag $\rightarrow$ Không cần thêm gì.
-* Nếu post có chứa bất kỳ tag loại trừ nào (`-D`, `-E`...) $\rightarrow$ Bỏ qua, không thêm.
+### 2. Hệ thống 3 Tag & N-Tag (`data/3tag/*.txt`)
+Hỗ trợ 2 dạng công thức mạnh mẽ:
+
+#### Dạng 1: Mũi tên suy luận (`A B C -> D <E>`)
+* **Logic**: Khi bài viết có **đủ tất cả các tag bên trái** (`A`, `B`, `C`) $\rightarrow$ Thêm tag **`D`** (trừ khi có tag `E` trong `<E>`).
+* **Ví dụ**:
+  ```txt
+  school_uniform sailor_collar pleated_skirt -> student <cosplay>
+  ```
+
+#### Dạng 2: Neo bắt buộc & Suy luận tương hỗ (`?A B C D <E>`)
+* **Quy ước**:
+  * Các tag có dấu `?` (ví dụ: `?A`, `?B`) là tag **bắt buộc phải có** (và bot không bao giờ tự thêm các tag này).
+  * Các tag không có dấu `?` là **tập ứng viên suy luận**. Khi bài viết đã có đủ $(N - 1)$ tag trong tập ứng viên $\rightarrow$ tự động bù **tag thứ $N$ còn thiếu**!
+  * Tag trong `<...>` là **tag loại trừ**.
+* **Các trường hợp cụ thể**:
+  * `?A B C <E>`:
+    * Có `A` và `B` $\rightarrow$ Thêm `C`.
+    * Có `A` và `C` $\rightarrow$ Thêm `B`.
+    * Có `B` và `C` (thiếu `A`) $\rightarrow$ **Không hoạt động**.
+  * `?A B C D <E>`:
+    * Bắt buộc có `A`. Nếu có 2 trong 3 tag `{B, C, D}` $\rightarrow$ tự động bù tag thứ 3 còn thiếu.
+    * Có `B, C, D` (thiếu `A`) $\rightarrow$ **Không hoạt động**.
+  * Dạng mở rộng nhiều neo: `?A ?B C D E F G <H I K>`:
+    * Bắt buộc có cả `A` và `B`. Nếu có 4 trong 5 tag `{C, D, E, F, G}` $\rightarrow$ tự động bù tag còn thiếu.
 
 **Ví dụ**:
 ```txt
-# Tam giác twintails, ruy băng tóc và twin_ribbons
-? twintails hair_ribbon twin_ribbons -single_ribbon
+# Bắt buộc twintails: có hair_ribbon thì bù twin_ribbons; có twin_ribbons thì bù hair_ribbon
+?twintails hair_ribbon twin_ribbons <single_ribbon>
 
-# Bộ 3 ma cà rồng
-? vampire fangs pointy_ears -elf
+# Bộ 4 tag ma cà rồng:
+?vampire fangs pointy_ears cape <elf>
 ```
 
 ---
