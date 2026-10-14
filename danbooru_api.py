@@ -136,8 +136,7 @@ class DanbooruClient:
         url = f"{self.base_url}/posts/{post_id}.json"
         payload = {
             "post[tag_string]": new_tag_string,
-            "post[old_tag_string]": old_tag_string,
-            "post[edit_reason]": self.edit_reason
+            "post[old_tag_string]": old_tag_string
         }
 
         try:
