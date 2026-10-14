@@ -197,6 +197,10 @@ async def main():
     except ValueError:
         loop_interval = 300
 
+    # Nếu đang bật TEST_MODE ở Testbooru -> Tự động tắt RUN_LOOP (chỉ chạy 1 lần để test)
+    if test_mode:
+        run_loop = False
+
     print("=" * 65)
     print(" DANBOORU TAG AUTO-CHECKER BOT")
     print("=" * 65)
@@ -205,7 +209,10 @@ async def main():
     print(f"[*] API Base URL       : {base_url}")
     print(f"[*] Tài khoản          : {username if username else '(Chưa cấu hình, chỉ đọc)'}")
     print(f"[*] Chế độ DRY_RUN     : {'BẬT (Chỉ mô phỏng, KHÔNG ghi lên Danbooru)' if dry_run else 'TẮT (SẼ CẬP NHẬT TRỰC TIẾP LÊN DANBOORU!)'}")
-    print(f"[*] Chế độ chạy liên tục: {'BẬT (24/7, lặp lại mỗi ' + str(loop_interval) + 's)' if run_loop else 'TẮT (Chạy 1 lần)'}")
+    if test_mode:
+        print("[*] Chế độ chạy liên tục: TẮT (Tự động tắt do đang chạy Test Mode ở Testbooru)")
+    else:
+        print(f"[*] Chế độ chạy liên tục: {'BẬT (24/7, lặp lại mỗi ' + str(loop_interval) + 's)' if run_loop else 'TẮT (Chạy 1 lần)'}")
     print(f"[*] Độ trễ request     : {request_delay}s")
     print(f"[*] Edit Reason        : {edit_reason}")
     print(f"[*] Chính sách re-add  : {env_readd_policy} (tối thiểu {min_edits_before_readd} lần sửa)")
