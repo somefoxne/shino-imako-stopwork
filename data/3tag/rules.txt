@@ -16,7 +16,7 @@
 
 # Ví dụ mẫu:
 # Tam giác liên hệ giữa tóc hai bên, ruy băng tóc và kiểu tóc twintails
-? twintails hair_ribbon twin_ribbons -single_ribbon
+#? twintails hair_ribbon twin_ribbons -single_ribbon
 
 # Bộ 3 tương hỗ về trang phục ma cà rồng
-? vampire fangs pointy_ears -elf
+#? vampire fangs pointy_ears -elf
